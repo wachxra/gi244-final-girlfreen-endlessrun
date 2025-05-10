@@ -355,15 +355,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87059482b0c430644882ce49333b5982, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isSprinting: 0
   jumpForce: 10
   gravityModifier: 2
   explosionParticle: {fileID: 810715825}
   dirtParticle: {fileID: 1120688231}
-  hitParticle: {fileID: 9125212449759046732, guid: cb7cd9b0c56a24d49a40784bd3203ae6, type: 3}
+  obstacleHitParticle: {fileID: 0}
   jumpSfx: {fileID: 8300000, guid: 08ab7053d586c458db3774d33c141a4b, type: 3}
   crashSfx: {fileID: 8300000, guid: 4bcde6de2166e41e284ec46d8a01fb90, type: 3}
   gameOver: 0
+  isDashing: 0
+  playerHP: 3
 --- !u!65 &383521443
 BoxCollider:
   m_ObjectHideFlags: 0

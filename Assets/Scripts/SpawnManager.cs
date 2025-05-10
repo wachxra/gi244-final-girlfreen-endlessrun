@@ -18,7 +18,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (!playerController.gameOver)
         {
-            GameObject obj = ObstacleObjectPool.Instance.Acquire(spawnPos, Quaternion.identity); //Object Pool
+            GameObject obj = ObstacleObjectPool.Instance.Acquire(spawnPos, Quaternion.identity);
         }
     }
 }

@@ -4,7 +4,9 @@ public class MoveLeft : MonoBehaviour
 {
     public float speed = 10f;
     private float leftBound = -15;
+
     private PlayerController playerController;
+    float currentSpeed;
 
     void Start()
     {
@@ -15,13 +17,13 @@ public class MoveLeft : MonoBehaviour
     {
         if (!playerController.gameOver)
         {
-            float currentSpeed = playerController.isSprinting ? speed * 2 : speed;
+            currentSpeed = playerController.isDashing ? speed * 2 : speed;
             transform.Translate(Vector3.left * Time.deltaTime * currentSpeed);
         }
 
         if (transform.position.x < leftBound && gameObject.CompareTag("Obstacle"))
         {
-            ObstacleObjectPool.Instance.Return(gameObject); //Object Pool
+            ObstacleObjectPool.Instance.Return(gameObject);
         }
     }
 }

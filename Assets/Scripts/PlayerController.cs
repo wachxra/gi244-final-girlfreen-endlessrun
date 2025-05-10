@@ -3,25 +3,29 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public bool isSprinting = false;
     public float jumpForce;
     public float gravityModifier;
     public ParticleSystem explosionParticle;
     public ParticleSystem dirtParticle;
-    public ParticleSystem hitParticle;
+    public ParticleSystem obstacleHitParticle;
 
     public AudioClip jumpSfx;
     public AudioClip crashSfx;
 
-    private int hp = 3;
     private Rigidbody rb;
     private InputAction jumpAction;
+
     private int jumpCount = 0;
-    private int maxJumps = 1;
+    private int maxJumpCount = 1;
+
     private Animator playerAnim;
     private AudioSource playerAudio;
 
     public bool gameOver = false;
+
+    public bool isDashing = false;
+
+    public int playerHP = 3;
 
     void Awake()
     {
@@ -39,16 +43,24 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (jumpAction.triggered && jumpCount < maxJumps && !gameOver)
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
+            isDashing = true;
+        }
+        else
+        {
+            isDashing = false;
+        }
+
+        if (jumpAction.triggered && jumpCount < maxJumpCount && !gameOver)
+        {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             jumpCount++;
             playerAnim.SetTrigger("Jump_trig");
             dirtParticle.Stop();
             playerAudio.PlayOneShot(jumpSfx);
         }
-
-        isSprinting = Keyboard.current.leftShiftKey.isPressed;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -60,23 +72,33 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
-            hp--;
-            hitParticle.Play();
+            playerHP--;
 
-            ObstacleObjectPool.Instance.Return(collision.gameObject); //Object Pool
-
-            Debug.Log("HP: " + hp);
-
-            if (hp <= 0)
+            if (explosionParticle != null)
             {
+                explosionParticle.Stop();
+                explosionParticle.Clear();
+                explosionParticle.Play();
+            }
+
+            if (playerAudio != null && crashSfx != null)
+            {
+                playerAudio.PlayOneShot(crashSfx);
+            }
+
+            if (playerHP <= 0)
+            {
+                Debug.Log("Game Over! HP is 0");
                 gameOver = true;
                 playerAnim.SetBool("Death_b", true);
                 playerAnim.SetInteger("DeathType_int", 1);
-                explosionParticle.Play();
-                dirtParticle.Stop();
-                playerAudio.PlayOneShot(crashSfx);
-                Debug.Log("Game Over!");
             }
+            else
+            {
+                Debug.Log("HP remaining: " + playerHP);
+            }
+
+            ObstacleObjectPool.Instance.Return(collision.gameObject);
         }
     }
 }
