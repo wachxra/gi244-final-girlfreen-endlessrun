@@ -4,12 +4,15 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuUI : MonoBehaviour
 {
+    [Header("Panels")]
     public GameObject scorePanel;
     public GameObject howToPlayPanel;
 
+    [Header("Sound")]
     public Sprite soundOnIcon;
     public Sprite soundOffIcon;
     public Button soundToggleButton;
+    public AudioSource bgMusic;
 
     private bool isSoundOn = true;
     private int highScore = 0;
@@ -18,21 +21,24 @@ public class MainMenuUI : MonoBehaviour
     {
         LoadData();
         UpdateSoundIcon();
+
+        scorePanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
     }
 
     public void OnStartGame()
     {
-        SceneManager.LoadScene("Prototype");
+        SceneManager.LoadScene("GameplayScene");
     }
 
     public void OnToggleScorePanel()
     {
-        scorePanel.SetActive(!scorePanel.activeSelf);
+        scorePanel.SetActive(true);
     }
 
     public void OnToggleHowToPlayPanel()
     {
-        howToPlayPanel.SetActive(!howToPlayPanel.activeSelf);
+        howToPlayPanel.SetActive(true);
     }
 
     public void OnExitGame()
@@ -50,9 +56,11 @@ public class MainMenuUI : MonoBehaviour
     private void UpdateSoundIcon()
     {
         if (soundToggleButton != null)
-        {
             soundToggleButton.image.sprite = isSoundOn ? soundOnIcon : soundOffIcon;
-        }
+
+        AudioListener.volume = isSoundOn ? 1 : 0;
+        if (bgMusic != null)
+            bgMusic.mute = !isSoundOn;
     }
 
     private void SaveData()
@@ -60,15 +68,24 @@ public class MainMenuUI : MonoBehaviour
         PlayerPrefs.SetInt("HighScore", highScore);
         PlayerPrefs.SetInt("Sound", isSoundOn ? 1 : 0);
         PlayerPrefs.Save();
-
-        AudioListener.volume = isSoundOn ? 1 : 0;
     }
 
     private void LoadData()
     {
         highScore = PlayerPrefs.GetInt("HighScore", 0);
         isSoundOn = PlayerPrefs.GetInt("Sound", 1) == 1;
-
         AudioListener.volume = isSoundOn ? 1 : 0;
+        if (bgMusic != null)
+            bgMusic.mute = !isSoundOn;
+    }
+
+    public void OnBackFromScorePanel()
+    {
+        scorePanel.SetActive(false);
+    }
+
+    public void OnBackFromHowToPlayPanel()
+    {
+        howToPlayPanel.SetActive(false);
     }
 }
