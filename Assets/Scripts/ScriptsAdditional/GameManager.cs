@@ -58,10 +58,12 @@ public class GameplayManager : MonoBehaviour
         int score = distanceInt + currentCoins;
 
         int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        bool isNewHighScore = false;
         if (score > highScore)
         {
             PlayerPrefs.SetInt("HighScore", score);
             highScore = score;
+            isNewHighScore = true;
         }
 
         SaveScoreHistory(distanceInt, currentCoins, score);
@@ -69,7 +71,18 @@ public class GameplayManager : MonoBehaviour
         finalDistanceText.text = $"Distance: {distanceInt}m";
         finalCoinsText.text = $"Coins: {currentCoins}";
         finalScoreText.text = $"Score: {score}";
-        highScoreText.text = $"High Score: {highScore}";
+
+        if (isNewHighScore)
+        {
+            highScoreText.text = $"(New) High Score: {highScore}";
+            highScoreText.color = Color.yellow;
+        }
+        else
+        {
+            highScoreText.text = $"High Score: {highScore}";
+            highScoreText.color = Color.white;
+        }
+
 
         deathPanel.SetActive(true);
     }
