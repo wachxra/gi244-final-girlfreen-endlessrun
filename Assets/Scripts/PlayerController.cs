@@ -97,6 +97,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Coin"))
+        {
+            GameplayManager.Instance.AddCoin(1);
+            CoinObjectPool.Instance.Return(other.gameObject);
+        }
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -104,11 +112,6 @@ public class PlayerController : MonoBehaviour
         {
             jumpCount = 0;
             dirtParticle.Play();
-        }
-        if (collision.gameObject.CompareTag("Coin"))
-        {
-            GameplayManager.Instance.AddCoin(1);
-            Destroy(collision.gameObject);
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
