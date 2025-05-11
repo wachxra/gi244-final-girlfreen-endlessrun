@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -28,6 +29,10 @@ public class PlayerController : MonoBehaviour
     public bool isDashing = false;
 
     public int playerHP = 3;
+
+    public Image[] heartIcons;
+    public Sprite fullHeart;
+    public Sprite emptyHeart;
 
     void Awake()
     {
@@ -95,6 +100,8 @@ public class PlayerController : MonoBehaviour
             explosionParticle.Stop();
             explosionParticle.Clear();
         }
+
+        UpdateHeartsUI();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -116,6 +123,7 @@ public class PlayerController : MonoBehaviour
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
             playerHP--;
+            UpdateHeartsUI();
 
             if (explosionParticle != null)
             {
@@ -131,19 +139,28 @@ public class PlayerController : MonoBehaviour
 
             if (playerHP <= 0)
             {
-                Debug.Log("Game Over! HP is 0");
                 gameOver = true;
                 playerAnim.SetBool("Death_b", true);
                 playerAnim.SetInteger("DeathType_int", 1);
-
                 GameplayManager.Instance.GameOver();
-            }
-            else
-            {
-                Debug.Log("HP remaining: " + playerHP);
             }
 
             ObstacleObjectPool.Instance.Return(collision.gameObject);
+        }
+    }
+
+    void UpdateHeartsUI()
+    {
+        for (int i = 0; i < heartIcons.Length; i++)
+        {
+            if (i < playerHP)
+            {
+                heartIcons[i].sprite = fullHeart;
+            }
+            else
+            {
+                heartIcons[i].sprite = emptyHeart;
+            }
         }
     }
 }
