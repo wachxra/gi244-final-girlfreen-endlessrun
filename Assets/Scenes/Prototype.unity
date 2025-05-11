@@ -735,8 +735,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabVariants:
-  - {fileID: 5842114324701935107, guid: a0f4f1964968e794793346c5e8a07472, type: 3}
   - {fileID: 4853753764025788889, guid: 0a3fce29c3c45f2469fdc0c464ab3433, type: 3}
+  - {fileID: 5842114324701935107, guid: a0f4f1964968e794793346c5e8a07472, type: 3}
   - {fileID: 3399479358633565299, guid: 330016489e591474c850e90012aeebe7, type: 3}
   poolSize: 3
 --- !u!4 &611704407
@@ -992,8 +992,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentScore: 0
   currentCoins: 0
-  highScore: 0
-  isSoundOn: 1
 --- !u!4 &878993130
 Transform:
   m_ObjectHideFlags: 0
