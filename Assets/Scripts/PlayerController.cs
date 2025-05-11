@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance;
+
     public float jumpForce;
     public float gravityModifier;
     public ParticleSystem explosionParticle;
@@ -29,6 +31,8 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        if (Instance == null) Instance = this;
+
         rb = GetComponent<Rigidbody>();
         playerAnim = GetComponent<Animator>();
         playerAudio = GetComponent<AudioSource>();
@@ -36,13 +40,18 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        Physics.gravity *= gravityModifier;
+        Physics.gravity = Vector3.down * 9.81f * gravityModifier;
+
         jumpAction = InputSystem.actions.FindAction("Jump");
         gameOver = false;
+
+        ResetPlayer();
     }
 
     void Update()
     {
+        if (gameOver) return;
+
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             isDashing = true;
@@ -63,12 +72,43 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void ResetPlayer()
+    {
+        playerHP = 3;
+        gameOver = false;
+        jumpCount = 0;
+
+        rb.linearVelocity = Vector3.zero;
+
+        playerAnim.SetBool("Death_b", false);
+        playerAnim.SetInteger("DeathType_int", 0);
+        playerAnim.Play("Idle");
+
+        if (dirtParticle != null)
+        {
+            dirtParticle.Stop();
+            dirtParticle.Clear();
+        }
+
+        if (explosionParticle != null)
+        {
+            explosionParticle.Stop();
+            explosionParticle.Clear();
+        }
+    }
+
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
             jumpCount = 0;
             dirtParticle.Play();
+        }
+        if (collision.gameObject.CompareTag("Coin"))
+        {
+            GameplayManager.Instance.AddCoin(1);
+            Destroy(collision.gameObject);
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
@@ -92,6 +132,8 @@ public class PlayerController : MonoBehaviour
                 gameOver = true;
                 playerAnim.SetBool("Death_b", true);
                 playerAnim.SetInteger("DeathType_int", 1);
+
+                GameplayManager.Instance.GameOver();
             }
             else
             {

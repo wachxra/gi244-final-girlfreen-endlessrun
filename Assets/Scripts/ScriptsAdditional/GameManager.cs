@@ -1,38 +1,32 @@
 ﻿using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameplayManager : MonoBehaviour
 {
     public static GameplayManager Instance;
 
-    [Header("UI")]
+    [Header("HUD")]
     public TextMeshProUGUI distanceText;
     public TextMeshProUGUI coinsText;
+
+    [Header("Death Panel")]
+    public GameObject deathPanel;
     public TextMeshProUGUI finalDistanceText;
     public TextMeshProUGUI finalCoinsText;
-    public TextMeshProUGUI highScoreResultText;
-    public GameObject gameOverPanel;
+    public TextMeshProUGUI finalScoreText;
+    public TextMeshProUGUI highScoreText;
 
-    [Header("Gameplay Values")]
     public float currentDistance = 0f;
     public int currentCoins = 0;
     public float distancePerSecond = 5f;
-    private bool isGameOver = false;
 
-    private float bestDistance;
-    private int bestCoins;
+    private bool isGameOver = false;
 
     void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-    }
-
-    void Start()
-    {
-        bestDistance = PlayerPrefs.GetFloat("BestDistance", 0f);
-        bestCoins = PlayerPrefs.GetInt("BestCoins", 0);
-        gameOverPanel.SetActive(false);
+        if (Instance == null) Instance = this;
     }
 
     void Update()
@@ -40,6 +34,11 @@ public class GameplayManager : MonoBehaviour
         if (isGameOver) return;
 
         currentDistance += distancePerSecond * Time.deltaTime;
+        UpdateHUD();
+    }
+
+    void UpdateHUD()
+    {
         distanceText.text = $"Distance: {Mathf.FloorToInt(currentDistance)}m";
         coinsText.text = $"Coins: {currentCoins}";
     }
@@ -47,49 +46,67 @@ public class GameplayManager : MonoBehaviour
     public void AddCoin(int amount)
     {
         currentCoins += amount;
-        coinsText.text = $"Coins: {currentCoins}";
+        UpdateHUD();
     }
 
-    public void EndGame()
+    public void GameOver()
     {
         isGameOver = true;
+        Time.timeScale = 0f;
 
-        int finalDist = Mathf.FloorToInt(currentDistance);
-        finalDistanceText.text = $"Distance: {finalDist}m";
-        finalCoinsText.text = $"Coins: {currentCoins}";
+        int distanceInt = Mathf.FloorToInt(currentDistance);
+        int score = distanceInt + currentCoins;
 
-        bool brokeDistance = finalDist > bestDistance;
-        bool brokeCoins = currentCoins > bestCoins;
-
-        if (brokeDistance)
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        if (score > highScore)
         {
-            bestDistance = finalDist;
-            PlayerPrefs.SetFloat("BestDistance", bestDistance);
+            PlayerPrefs.SetInt("HighScore", score);
+            highScore = score;
         }
 
-        if (brokeCoins)
+        SaveScoreHistory(distanceInt, currentCoins, score);
+
+        finalDistanceText.text = $"Distance: {distanceInt}m";
+        finalCoinsText.text = $"Coins: {currentCoins}";
+        finalScoreText.text = $"Score: {score}";
+        highScoreText.text = $"High Score: {highScore}";
+
+        deathPanel.SetActive(true);
+    }
+
+    void SaveScoreHistory(int distance, int coins, int score)
+    {
+        List<string> history = new List<string>();
+
+        for (int i = 0; i < 5; i++)
         {
-            bestCoins = currentCoins;
-            PlayerPrefs.SetInt("BestCoins", bestCoins);
+            string entry = PlayerPrefs.GetString($"History_{i}", "");
+            if (!string.IsNullOrEmpty(entry))
+                history.Add(entry);
+        }
+
+        string newEntry = $"Distance: {distance}m, Coins: {coins}, Score: {score}";
+        history.Insert(0, newEntry);
+
+        if (history.Count > 5) history.RemoveAt(5);
+
+        for (int i = 0; i < history.Count; i++)
+        {
+            PlayerPrefs.SetString($"History_{i}", history[i]);
         }
 
         PlayerPrefs.Save();
-
-        if (brokeDistance || brokeCoins)
-            highScoreResultText.text = "New Record!";
-        else
-            highScoreResultText.text = "You didn't beat your record.";
-
-        gameOverPanel.SetActive(true);
     }
 
-    public void RestartGame()
+    public void Retry()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Prototype");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void ReturnToMenu()
+    public void ReturnToMainMenu()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }
