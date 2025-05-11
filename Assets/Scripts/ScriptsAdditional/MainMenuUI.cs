@@ -28,7 +28,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnStartGame()
     {
-        SceneManager.LoadScene("GameplayScene");
+        SceneManager.LoadScene("Prototype");
     }
 
     public void OnToggleScorePanel()
