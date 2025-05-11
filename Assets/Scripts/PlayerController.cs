@@ -70,6 +70,11 @@ public class PlayerController : MonoBehaviour
             jumpCount = 0;
             dirtParticle.Play();
         }
+        if (collision.gameObject.CompareTag("Coin"))
+        {
+            GameplayManager.Instance.AddCoin(1);
+            Destroy(collision.gameObject);
+        }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
             playerHP--;
@@ -92,6 +97,8 @@ public class PlayerController : MonoBehaviour
                 gameOver = true;
                 playerAnim.SetBool("Death_b", true);
                 playerAnim.SetInteger("DeathType_int", 1);
+
+                GameplayManager.Instance.GameOver();
             }
             else
             {
