@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 public class MainMenuUI : MonoBehaviour
 {
@@ -43,7 +44,11 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnExitGame()
     {
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
         Application.Quit();
+#endif
     }
 
     public void OnToggleSound()
